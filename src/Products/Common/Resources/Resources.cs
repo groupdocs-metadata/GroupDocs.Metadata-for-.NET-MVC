@@ -1,7 +1,6 @@
 ﻿using GroupDocs.Metadata.MVC.Products.Common.Entity.Web;
 using System;
 using System.IO;
-using System.Web;
 
 namespace GroupDocs.Metadata.MVC.Products.Common.Resources
 {
@@ -29,19 +28,15 @@ namespace GroupDocs.Metadata.MVC.Products.Common.Resources
                     int number = i + 1;
                     string newFileName = Path.GetFileNameWithoutExtension(fileName) + "-Copy(" + number + ")." + Path.GetExtension(fileName);
                     resultFileName = Path.Combine(directory, newFileName);
-                    if (File.Exists(resultFileName))
-                    {
-                        continue;
-                    }
-                    else
+                    if (!File.Exists(resultFileName))
                     {
                         break;
                     }
                 }
             }
-            catch (System.Exception e)
+            catch (Exception)
             {
-                throw e;
+                throw;
             }
             return resultFileName;
         }
@@ -51,7 +46,7 @@ namespace GroupDocs.Metadata.MVC.Products.Common.Resources
         /// </summary>
         /// <param name="ex">Exception</param>
         /// <returns>ExceptionEntity</returns>
-        public ExceptionEntity GenerateException(System.Exception ex)
+        public static ExceptionEntity GenerateException(Exception ex)
         {
             // Initiate Exception entity
             ExceptionEntity exceptionEntity = new ExceptionEntity();
@@ -67,7 +62,7 @@ namespace GroupDocs.Metadata.MVC.Products.Common.Resources
         /// <param name="ex">Exception</param>
         /// <param name="password">string</param>
         /// <returns>ExceptionEntity</returns>
-        public ExceptionEntity GenerateException(System.Exception ex, String password)
+        public static ExceptionEntity GenerateException(Exception ex, string password)
         {
             // Initiate exception
             ExceptionEntity exceptionEntity = new ExceptionEntity();

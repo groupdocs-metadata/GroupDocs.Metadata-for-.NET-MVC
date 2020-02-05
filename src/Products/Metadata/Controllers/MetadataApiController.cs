@@ -26,7 +26,7 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
     [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class MetadataApiController : ApiController
     {
-        private static Common.Config.GlobalConfiguration globalConfiguration;
+        private Common.Config.GlobalConfiguration globalConfiguration;
 
         /// <summary>
         /// Constructor
@@ -66,13 +66,13 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
                 List<FileDescriptionEntity> filesList = new List<FileDescriptionEntity>();
                 if (!string.IsNullOrEmpty(globalConfiguration.Metadata.GetFilesDirectory()))
                 {
-                    filesList = this.LoadFiles();
+                    filesList = LoadFiles(globalConfiguration);
                 }
                 return Request.CreateResponse(HttpStatusCode.OK, filesList);
             }
             catch (Exception ex)
             {
-                return Request.CreateResponse(HttpStatusCode.OK, new Resources().GenerateException(ex));
+                return Request.CreateResponse(HttpStatusCode.OK, Resources.GenerateException(ex));
             }
         }
 
@@ -87,34 +87,40 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
         {
             List<FilePropertyEntity> outputProperties = new List<FilePropertyEntity>();
 
-            outputProperties.AddRange(GetFileProperties(postedData.guid, FilePropertyCategory.BuildIn));
-            outputProperties.AddRange(GetFileProperties(postedData.guid, FilePropertyCategory.Default));
+            outputProperties.AddRange(GetFileProperties(postedData, FilePropertyCategory.BuildIn));
+            outputProperties.AddRange(GetFileProperties(postedData, FilePropertyCategory.Default));
 
             return Request.CreateResponse(HttpStatusCode.OK, outputProperties);
         }
 
-        private IList<FilePropertyEntity> GetFileProperties(string guid, FilePropertyCategory filePropertyCategory) {
+        private IList<FilePropertyEntity> GetFileProperties(PostedDataEntity postedData, FilePropertyCategory filePropertyCategory) {
 
             List<FilePropertyEntity> outputProperties = new List<FilePropertyEntity>();
 
-            using (GroupDocs.Metadata.Metadata metadata = new GroupDocs.Metadata.Metadata(guid))
+            string password = (String.IsNullOrEmpty(postedData.password)) ? null : postedData.password;
+            // set password for protected document                
+            var loadOptions = new LoadOptions
+            {
+                Password = password
+            };
+
+            using (GroupDocs.Metadata.Metadata metadata = new GroupDocs.Metadata.Metadata(postedData.guid, loadOptions))
             {
                 if (filePropertyCategory == FilePropertyCategory.BuildIn)
                 {
                     if (metadata.FileFormat != FileFormat.Unknown && !metadata.GetDocumentInfo().IsEncrypted)
                     {
                         // Fetch all properties having a specific type and value
-                        var year = DateTime.Today.Year - 1;
                         IEnumerable<MetadataProperty> buildInProperties = metadata.FindProperties(p => p.Tags.Contains(Tags.Document.BuiltIn)
                                                                                                     && (p.Value.Type == MetadataPropertyType.String
                                                                                                      || p.Value.Type == MetadataPropertyType.DateTime));
 
                         foreach (var buildInProperty in buildInProperties)
                         {
-                            var outputProperty = new FilePropertyEntity()
+                            var outputProperty = new FilePropertyEntity
                             {
                                 name = buildInProperty.Name,
-                                value = this.GetPropertyValue(buildInProperty),
+                                value = GetPropertyValue(buildInProperty),
                                 type = buildInProperty.Value.Type,
                                 category = FilePropertyCategory.BuildIn,
                                 original = true
@@ -134,7 +140,7 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
                         var outputProperty = new FilePropertyEntity()
                         {
                             name = defaultProperty.Name,
-                            value = this.GetPropertyValue(defaultProperty),
+                            value = GetPropertyValue(defaultProperty),
                             type = defaultProperty.Value.Type,
                             category = FilePropertyCategory.Default,
                             original = true
@@ -147,7 +153,7 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
             return outputProperties;
         }
 
-        private dynamic GetPropertyValue(MetadataProperty property) {
+        private static dynamic GetPropertyValue(MetadataProperty property) {
             switch (property.Value.Type) 
             {
                 case MetadataPropertyType.String:
@@ -157,7 +163,7 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
                 case MetadataPropertyType.Integer:
                     return property.Value.ToStruct(int.MinValue);
                 default:
-                    return null;
+                    return property.Value.ToClass<string>();
             }
         }
 
@@ -170,11 +176,18 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
         [Route("loadPropertiesNames")]
         public HttpResponseMessage loadPropertiesNames(PostedDataEntity postedData)
         {
-            var buildInProperties = GetFileProperties(postedData.guid, FilePropertyCategory.BuildIn);
+            var buildInProperties = GetFileProperties(postedData, FilePropertyCategory.BuildIn);
 
             var filePropertiesNames = new List<FilePropertyName>();
+            
+            string password = (String.IsNullOrEmpty(postedData.password)) ? null : postedData.password;
+            // set password for protected document                
+            var loadOptions = new LoadOptions
+            {
+                Password = password
+            };
 
-            using (GroupDocs.Metadata.Metadata metadata = new GroupDocs.Metadata.Metadata(postedData.guid))
+            using (GroupDocs.Metadata.Metadata metadata = new GroupDocs.Metadata.Metadata(postedData.guid, loadOptions))
             {
                 foreach (var property in (metadata.GetRootPackage().FindProperties(p =>
                     p.Value.ToClass<DocumentPackage>() != null)))
@@ -184,7 +197,7 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
                                  && d.Tags.Contains(Tags.Document.BuiltIn)
                                  && (d.Type == MetadataPropertyType.String || d.Type == MetadataPropertyType.DateTime)))
                     {
-                        filePropertiesNames.Add(new FilePropertyName() { name = descriptor.Name, type = descriptor.Type });
+                        filePropertiesNames.Add(new FilePropertyName { name = descriptor.Name, type = descriptor.Type });
                     }
                 }
             }
@@ -205,7 +218,14 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
             string tempFilename = Path.GetFileNameWithoutExtension(saveFilePath) + "_tmp";
             string tempPath = Path.Combine(Path.GetDirectoryName(saveFilePath), tempFilename + Path.GetExtension(saveFilePath));
 
-            using (GroupDocs.Metadata.Metadata metadata = new GroupDocs.Metadata.Metadata(postedData.guid))
+            string password = (String.IsNullOrEmpty(postedData.password)) ? null : postedData.password;
+            // set password for protected document                
+            var loadOptions = new LoadOptions
+            {
+                Password = password
+            };
+
+            using (GroupDocs.Metadata.Metadata metadata = new GroupDocs.Metadata.Metadata(postedData.guid, loadOptions))
             {
                 if (metadata.FileFormat != FileFormat.Unknown && !metadata.GetDocumentInfo().IsEncrypted)
                 {
@@ -243,7 +263,14 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
             string tempFilename = Path.GetFileNameWithoutExtension(saveFilePath) + "_tmp";
             string tempPath = Path.Combine(Path.GetDirectoryName(saveFilePath), tempFilename + Path.GetExtension(saveFilePath));
 
-            using (GroupDocs.Metadata.Metadata metadata = new GroupDocs.Metadata.Metadata(postedData.guid))
+            string password = (String.IsNullOrEmpty(postedData.password)) ? null : postedData.password;
+            // set password for protected document                
+            var loadOptions = new LoadOptions
+            {
+                Password = password
+            };
+
+            using (GroupDocs.Metadata.Metadata metadata = new GroupDocs.Metadata.Metadata(postedData.guid, loadOptions))
             {
                 if (metadata.FileFormat != FileFormat.Unknown && !metadata.GetDocumentInfo().IsEncrypted)
                 {
@@ -267,7 +294,7 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
         /// Load documents
         /// </summary>
         /// <returns>List[FileDescriptionEntity]</returns>
-        public List<FileDescriptionEntity> LoadFiles()
+        public static List<FileDescriptionEntity> LoadFiles(Common.Config.GlobalConfiguration globalConfiguration)
         {
             var currentPath = globalConfiguration.Metadata.GetFilesDirectory();
             List<string> allFiles = new List<string>(Directory.GetFiles(currentPath));
@@ -284,14 +311,9 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
             {
                 FileInfo fileInfo = new FileInfo(file);
                 // check if current file/folder is hidden
-                if (tempDirectoryName.Equals(Path.GetFileName(file)) ||
+                if (!(tempDirectoryName.Equals(Path.GetFileName(file)) ||
                     fileInfo.Attributes.HasFlag(FileAttributes.Hidden) ||
-                    Path.GetFileName(file).Equals(Path.GetFileName(globalConfiguration.Metadata.GetFilesDirectory())))
-                {
-                    // ignore current file and skip to next one
-                    continue;
-                }
-                else
+                    Path.GetFileName(file).Equals(Path.GetFileName(globalConfiguration.Metadata.GetFilesDirectory()))))
                 {
                     FileDescriptionEntity fileDescription = new FileDescriptionEntity();
                     fileDescription.guid = Path.GetFullPath(file);
@@ -331,7 +353,7 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
             {
                 // set exception message
                 // TODO: return InternalServerError for common Exception and Forbidden for PasswordProtectedException
-                return Request.CreateResponse(HttpStatusCode.Forbidden, new Resources().GenerateException(ex, password));
+                return Request.CreateResponse(HttpStatusCode.Forbidden, Resources.GenerateException(ex, password));
             }
         }
 
@@ -426,11 +448,11 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
             catch (Exception ex)
             {
                 // set exception message
-                return Request.CreateResponse(HttpStatusCode.OK, new Resources().GenerateException(ex));
+                return Request.CreateResponse(HttpStatusCode.OK, Resources.GenerateException(ex));
             }
         }
 
-        private LoadDocumentEntity LoadDocument(PostedDataEntity postedData, bool loadAllPages)
+        private LoadDocumentEntity LoadDocument(PostedDataEntity postedData, bool v)
         {
             // get/set parameters
             string documentGuid = postedData.guid;
@@ -474,7 +496,7 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
             return loadDocumentEntity;
         }
 
-        private PageDescriptionEntity GetPageDescriptionEntities(PageInfo page)
+        private static PageDescriptionEntity GetPageDescriptionEntities(PageInfo page)
         {
             PageDescriptionEntity pageDescriptionEntity = new PageDescriptionEntity();
             pageDescriptionEntity.number = page.PageNumber;
@@ -483,7 +505,7 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
             return pageDescriptionEntity;
         }
 
-        private List<string> GetAllPagesContent(string password, string documentGuid, GroupDocs.Metadata.Common.IReadOnlyList<PageInfo> pages)
+        private static List<string> GetAllPagesContent(string password, string documentGuid, GroupDocs.Metadata.Common.IReadOnlyList<PageInfo> pages)
         {
             List<string> allPages = new List<string>();
 
@@ -517,7 +539,7 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
 
                 // Do not close stream as we're about to read from it
                 previewOptions.PreviewFormat = PreviewOptions.PreviewFormats.PNG;
-                previewOptions.PageNumbers = new int[] { pageNumberToRender };
+                previewOptions.PageNumbers = new[] { pageNumberToRender };
                 metadata.GeneratePreview(previewOptions);
             }
 

@@ -23,7 +23,7 @@ namespace GroupDocs.Metadata.MVC.Products.Common.Config
         [JsonProperty]
         public bool rewrite { get; set; }
 
-        private NameValueCollection commonConfiguration = (NameValueCollection)System.Configuration.ConfigurationManager.GetSection("commonConfiguration");
+        private readonly NameValueCollection commonConfiguration = (NameValueCollection)ConfigurationManager.GetSection("commonConfiguration");
 
         /// <summary>
         /// Constructor

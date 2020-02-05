@@ -7,10 +7,10 @@ namespace GroupDocs.Metadata.MVC.Products.Common.Config
     /// </summary>
     public class GlobalConfiguration
     {
-        public ServerConfiguration Server;
-        public ApplicationConfiguration Application;
-        public CommonConfiguration Common;
-        public MetadataConfiguration Metadata;
+        public ServerConfiguration Server { get; set; }
+        public ApplicationConfiguration Application { get; set; }
+        public CommonConfiguration Common { get; set; }
+        public MetadataConfiguration Metadata { get; set; }
 
         /// <summary>
         /// Get all configurations
@@ -19,8 +19,8 @@ namespace GroupDocs.Metadata.MVC.Products.Common.Config
         {            
             Server = new ServerConfiguration();
             Application = new ApplicationConfiguration();
-            Metadata = new MetadataConfiguration();
             Common = new CommonConfiguration();
+            Metadata = new MetadataConfiguration();
         }
     }
 }
