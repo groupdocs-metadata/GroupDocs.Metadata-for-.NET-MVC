@@ -26,7 +26,7 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
     [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class MetadataApiController : ApiController
     {
-        private Common.Config.GlobalConfiguration globalConfiguration;
+        private readonly Common.Config.GlobalConfiguration globalConfiguration;
 
         /// <summary>
         /// Constructor
@@ -93,7 +93,7 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
             return Request.CreateResponse(HttpStatusCode.OK, outputProperties);
         }
 
-        private IList<FilePropertyEntity> GetFileProperties(PostedDataEntity postedData, FilePropertyCategory filePropertyCategory) {
+        private static IList<FilePropertyEntity> GetFileProperties(PostedDataEntity postedData, FilePropertyCategory filePropertyCategory) {
 
             List<FilePropertyEntity> outputProperties = new List<FilePropertyEntity>();
 
@@ -137,7 +137,7 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
 
                     foreach (var defaultProperty in defaultProperties)
                     {
-                        var outputProperty = new FilePropertyEntity()
+                        var outputProperty = new FilePropertyEntity
                         {
                             name = defaultProperty.Name,
                             value = GetPropertyValue(defaultProperty),
@@ -180,14 +180,7 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
 
             var filePropertiesNames = new List<FilePropertyName>();
             
-            string password = (String.IsNullOrEmpty(postedData.password)) ? null : postedData.password;
-            // set password for protected document                
-            var loadOptions = new LoadOptions
-            {
-                Password = password
-            };
-
-            using (GroupDocs.Metadata.Metadata metadata = new GroupDocs.Metadata.Metadata(postedData.guid, loadOptions))
+            using (GroupDocs.Metadata.Metadata metadata = new GroupDocs.Metadata.Metadata(postedData.guid, GetLoadOptions(postedData)))
             {
                 foreach (var property in (metadata.GetRootPackage().FindProperties(p =>
                     p.Value.ToClass<DocumentPackage>() != null)))
@@ -214,18 +207,7 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
         [Route("saveProperty")]
         public HttpResponseMessage saveProperty(PostedDataEntity postedData)
         {
-            var saveFilePath = postedData.guid;
-            string tempFilename = Path.GetFileNameWithoutExtension(saveFilePath) + "_tmp";
-            string tempPath = Path.Combine(Path.GetDirectoryName(saveFilePath), tempFilename + Path.GetExtension(saveFilePath));
-
-            string password = (String.IsNullOrEmpty(postedData.password)) ? null : postedData.password;
-            // set password for protected document                
-            var loadOptions = new LoadOptions
-            {
-                Password = password
-            };
-
-            using (GroupDocs.Metadata.Metadata metadata = new GroupDocs.Metadata.Metadata(postedData.guid, loadOptions))
+            using (GroupDocs.Metadata.Metadata metadata = new GroupDocs.Metadata.Metadata(postedData.guid, GetLoadOptions(postedData)))
             {
                 if (metadata.FileFormat != FileFormat.Unknown && !metadata.GetDocumentInfo().IsEncrypted)
                 {
@@ -235,19 +217,36 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
                             StringComparison.OrdinalIgnoreCase), new PropertyValue(property.value));
                     }
 
-                    metadata.Save(tempPath);
+                    metadata.Save(GetTempPath(postedData));
                 }
             }
 
-            if (File.Exists(saveFilePath))
+            if (File.Exists(postedData.guid))
             {
-                File.Delete(saveFilePath);
+                File.Delete(postedData.guid);
             }
 
-            File.Move(tempPath, saveFilePath);
+            File.Move(GetTempPath(postedData), postedData.guid);
 
             // TODO: consider option to response with updated file
             return Request.CreateResponse(HttpStatusCode.OK, new object());
+        }
+
+        private static string GetTempPath(PostedDataEntity postedData)
+        {
+            string tempFilename = Path.GetFileNameWithoutExtension(postedData.guid) + "_tmp";
+            return Path.Combine(Path.GetDirectoryName(postedData.guid), tempFilename + Path.GetExtension(postedData.guid));
+        }
+
+        private static LoadOptions GetLoadOptions(PostedDataEntity postedData)
+        {
+            string password = (String.IsNullOrEmpty(postedData.password)) ? null : postedData.password;
+            // set password for protected document                
+            var loadOptions = new LoadOptions
+            {
+                Password = password
+            };
+            return loadOptions;
         }
 
         /// <summary>
@@ -259,33 +258,22 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
         [Route("removeProperty")]
         public HttpResponseMessage removeProperty(PostedDataEntity postedData)
         {
-            var saveFilePath = postedData.guid;
-            string tempFilename = Path.GetFileNameWithoutExtension(saveFilePath) + "_tmp";
-            string tempPath = Path.Combine(Path.GetDirectoryName(saveFilePath), tempFilename + Path.GetExtension(saveFilePath));
-
-            string password = (String.IsNullOrEmpty(postedData.password)) ? null : postedData.password;
-            // set password for protected document                
-            var loadOptions = new LoadOptions
-            {
-                Password = password
-            };
-
-            using (GroupDocs.Metadata.Metadata metadata = new GroupDocs.Metadata.Metadata(postedData.guid, loadOptions))
+            using (GroupDocs.Metadata.Metadata metadata = new GroupDocs.Metadata.Metadata(postedData.guid, GetLoadOptions(postedData)))
             {
                 if (metadata.FileFormat != FileFormat.Unknown && !metadata.GetDocumentInfo().IsEncrypted)
                 {
                     metadata.RemoveProperties(p => p.Name == postedData.properties[0].name);
 
-                    metadata.Save(tempPath);
+                    metadata.Save(GetTempPath(postedData));
                 }
             }
 
-            if (File.Exists(saveFilePath))
+            if (File.Exists(postedData.guid))
             {
-                File.Delete(saveFilePath);
+                File.Delete(postedData.guid);
             }
 
-            File.Move(tempPath, saveFilePath);
+            File.Move(GetTempPath(postedData), postedData.guid);
 
             return Request.CreateResponse(HttpStatusCode.OK, new object());
         }
@@ -345,7 +333,7 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
             string password = "";
             try
             {
-                LoadDocumentEntity loadDocumentEntity = LoadDocument(postedData, globalConfiguration.Metadata.GetPreloadPageCount() == 0);
+                LoadDocumentEntity loadDocumentEntity = LoadDocument(postedData);
                 // return document description
                 return Request.CreateResponse(HttpStatusCode.OK, loadDocumentEntity);
             }
@@ -452,7 +440,7 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
             }
         }
 
-        private LoadDocumentEntity LoadDocument(PostedDataEntity postedData, bool v)
+        private LoadDocumentEntity LoadDocument(PostedDataEntity postedData)
         {
             // get/set parameters
             string documentGuid = postedData.guid;

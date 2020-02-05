@@ -1,8 +1,8 @@
 ﻿using GroupDocs.Metadata.MVC.Products.Common.Util.Parser;
+using GroupDocs.Metadata.MVC.Products.Common.Util.Directory;
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 
 namespace GroupDocs.Metadata.MVC.Products.Common.Config
 {
@@ -29,7 +29,7 @@ namespace GroupDocs.Metadata.MVC.Products.Common.Config
             }
             else
             {
-                if (!IsFullPath(license))
+                if (!DirectoryUtils.IsFullPath(license))
                 {
                     license = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, license);
                     if (!Directory.Exists(Path.GetDirectoryName(license)))
@@ -44,14 +44,6 @@ namespace GroupDocs.Metadata.MVC.Products.Common.Config
                     LicensePath = "";
                 }
             }
-        }
-
-        private static bool IsFullPath(string path)
-        {
-            return !String.IsNullOrWhiteSpace(path)
-                && path.IndexOfAny(System.IO.Path.GetInvalidPathChars().ToArray()) == -1
-                && Path.IsPathRooted(path)
-                && !Path.GetPathRoot(path).Equals(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal);
         }
     }
 }

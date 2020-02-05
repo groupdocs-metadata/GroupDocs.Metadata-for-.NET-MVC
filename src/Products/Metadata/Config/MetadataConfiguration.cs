@@ -1,9 +1,9 @@
 ﻿using GroupDocs.Metadata.MVC.Products.Common.Config;
 using GroupDocs.Metadata.MVC.Products.Common.Util.Parser;
+using GroupDocs.Metadata.MVC.Products.Common.Util.Directory;
 using Newtonsoft.Json;
 using System;
 using System.IO;
-using System.Linq;
 
 namespace GroupDocs.Metadata.MVC.Products.Metadata.Config
 {
@@ -38,7 +38,7 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Config
 
             // get Metadata configuration section from the web.config
             filesDirectory = valuesGetter.GetStringPropertyValue("filesDirectory", filesDirectory);
-            if (!IsFullPath(filesDirectory))
+            if (!DirectoryUtils.IsFullPath(filesDirectory))
             {
                 filesDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filesDirectory);
                 if (!Directory.Exists(filesDirectory))
@@ -50,14 +50,6 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Config
             preloadPageCount = valuesGetter.GetIntegerPropertyValue("preloadPageCount", preloadPageCount);
             htmlMode = valuesGetter.GetBooleanPropertyValue("htmlMode", htmlMode);
             cache = valuesGetter.GetBooleanPropertyValue("cache", cache);
-        }
-
-        private static bool IsFullPath(string path)
-        {
-            return !String.IsNullOrWhiteSpace(path)
-                && path.IndexOfAny(System.IO.Path.GetInvalidPathChars().ToArray()) == -1
-                && Path.IsPathRooted(path)
-                && !Path.GetPathRoot(path).Equals(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal);
         }
 
         public void SetFilesDirectory(string filesDirectory)

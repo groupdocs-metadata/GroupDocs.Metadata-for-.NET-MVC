@@ -163,6 +163,7 @@
     </Compile>
     <Compile Include="Products\Common\Util\Comparator\FileDateComparator.cs" />
     <Compile Include="Products\Common\Util\Comparator\FileNameComparator.cs" />
+    <Compile Include="Products\Common\Util\Directory\DirectoryUtils.cs" />
     <Compile Include="Products\Common\Util\Parser\YamlParser.cs" />
     <Compile Include="Products\Metadata\Config\MetadataConfiguration.cs" />
     <Compile Include="Products\Metadata\Controllers\MetadataApiController.cs" />

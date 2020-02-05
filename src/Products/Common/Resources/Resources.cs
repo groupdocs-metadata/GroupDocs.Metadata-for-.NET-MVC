@@ -7,7 +7,7 @@ namespace GroupDocs.Metadata.MVC.Products.Common.Resources
     /// <summary>
     /// Resources
     /// </summary>
-    public class Resources
+    public static class Resources
     {
         /// <summary>
         /// Get free file name for uploaded file if such file already exists
@@ -38,6 +38,7 @@ namespace GroupDocs.Metadata.MVC.Products.Common.Resources
             {
                 throw;
             }
+
             return resultFileName;
         }
 
