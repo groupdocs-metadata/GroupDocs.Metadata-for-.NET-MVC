@@ -18,16 +18,16 @@ namespace GroupDocs.Metadata.MVC.Products.Common.Util.Comparator
         /// <returns></returns>
         public int Compare(string x, string y)
         {
-            string strExt1 = File.GetCreationTime(x).ToString(CultureInfo.InvariantCulture);
-            string strExt2 = File.GetCreationTime(y).ToString(CultureInfo.InvariantCulture);
+            var date1 = File.GetCreationTime(x);
+            var date2 = File.GetCreationTime(y);
 
-            if (string.Equals(strExt1, strExt2))
+            if (DateTime.Equals(date1, date2))
             {
-                return string.Compare(x, y, false, CultureInfo.InvariantCulture);
+                return string.Compare(y, x, false, CultureInfo.InvariantCulture);
             }
             else
             {
-                return string.Compare(strExt1, strExt2, false, CultureInfo.InvariantCulture);
+                return DateTime.Compare(date2, date1);
             }
         }
     }

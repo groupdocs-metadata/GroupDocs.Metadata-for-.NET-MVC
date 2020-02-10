@@ -111,9 +111,13 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
                     if (metadata.FileFormat != FileFormat.Unknown && !metadata.GetDocumentInfo().IsEncrypted)
                     {
                         // Fetch all properties having a specific type and value
-                        IEnumerable<MetadataProperty> buildInProperties = metadata.FindProperties(p => p.Tags.Contains(Tags.Document.BuiltIn)
+                        IEnumerable<MetadataProperty> buildInProperties = metadata.FindProperties(p => p.Value.RawValue != null
+                                                                                                    && !string.Empty.Equals(p.Value.RawValue)
+                                                                                                    && (!p.Value.RawValue.GetType().IsValueType 
+                                                                                                        || !p.Value.RawValue.Equals(Activator.CreateInstance(p.Value.RawValue.GetType())))
+                                                                                                    && p.Tags.Contains(Tags.Document.BuiltIn)
                                                                                                     && (p.Value.Type == MetadataPropertyType.String
-                                                                                                     || p.Value.Type == MetadataPropertyType.DateTime));
+                                                                                                        || p.Value.Type == MetadataPropertyType.DateTime));
 
                         foreach (var buildInProperty in buildInProperties)
                         {
@@ -133,7 +137,11 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
                 else if (filePropertyCategory == FilePropertyCategory.Default)
                 {
                     // Fetch all metadata properties that fall into a particular category
-                    IEnumerable<MetadataProperty> defaultProperties = metadata.FindProperties(p => p.Tags.Any(t => t.Category == Tags.Content));
+                    IEnumerable<MetadataProperty> defaultProperties = metadata.FindProperties(p => p.Value.RawValue != null
+                                                                                                && !string.Empty.Equals(p.Value.RawValue)
+                                                                                                && (!p.Value.RawValue.GetType().IsValueType
+                                                                                                    || !p.Value.RawValue.Equals(Activator.CreateInstance(p.Value.RawValue.GetType())))
+                                                                                                && p.Tags.Any(t => t.Category == Tags.Content));
 
                     foreach (var defaultProperty in defaultProperties)
                     {
@@ -162,6 +170,8 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
                     return property.Value.ToStruct(DateTime.MinValue);
                 case MetadataPropertyType.Integer:
                     return property.Value.ToStruct(int.MinValue);
+                case MetadataPropertyType.StringArray:
+                    return property.Value.ToClass<string[]>()[0];
                 default:
                     return property.Value.ToClass<string>();
             }
@@ -186,7 +196,7 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
                     p.Value.ToClass<DocumentPackage>() != null)))
                 {
                     foreach (var descriptor in property.Value.ToClass<DocumentPackage>().KnowPropertyDescriptors
-                        .Where(d => !buildInProperties.Select(op => op.name).Contains(d.Name)
+                        .Where(d => !buildInProperties.Select(op => op.name.ToLower()).Contains(d.Name.ToLower())
                                  && d.Tags.Contains(Tags.Document.BuiltIn)
                                  && (d.Type == MetadataPropertyType.String || d.Type == MetadataPropertyType.DateTime)))
                     {
@@ -262,7 +272,8 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
             {
                 if (metadata.FileFormat != FileFormat.Unknown && !metadata.GetDocumentInfo().IsEncrypted)
                 {
-                    metadata.RemoveProperties(p => p.Name == postedData.properties[0].name);
+                    metadata.RemoveProperties(p => string.Equals(p.Name, postedData.properties[0].name,
+                            StringComparison.OrdinalIgnoreCase));
 
                     metadata.Save(GetTempPath(postedData));
                 }
