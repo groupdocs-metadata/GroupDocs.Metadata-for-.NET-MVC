@@ -8,3 +8,20 @@
 ## System Requirements
 - .NET Framework 4.5
 - Visual Studio 2015
+
+## How to run
+
+You can run this sample by one of following methods
+
+#### Build from source
+
+Download [source code](https://github.com/groupdocs-metadata/GroupDocs.Metadata-for-.NET-MVC/archive/master.zip) from github or clone this repository.
+
+```bash
+git clone https://github.com/groupdocs-metadata/GroupDocs.Metadata-for-.NET-MVC
+```
+
+Open solution in the VisualStudio.
+Update common parameters in `web.config` and example related properties in the `configuration.yml` to meet your requirements.
+
+Open http://localhost:8080/Metadata in your favorite browser
