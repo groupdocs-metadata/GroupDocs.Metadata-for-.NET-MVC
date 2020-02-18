@@ -38,7 +38,10 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
 
             // TODO: investigate the System.IO.IOException
             License license = new License();
-            license.SetLicense(globalConfiguration.Application.LicensePath);
+            if (!string.IsNullOrEmpty(globalConfiguration.Application.LicensePath))
+            {
+                license.SetLicense(globalConfiguration.Application.LicensePath);
+            }
         }
 
         /// <summary>
