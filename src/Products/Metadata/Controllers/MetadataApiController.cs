@@ -75,7 +75,7 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
             }
             catch (Exception ex)
             {
-                return Request.CreateResponse(HttpStatusCode.OK, Resources.GenerateException(ex));
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, Resources.GenerateException(ex));
             }
         }
 
@@ -88,12 +88,19 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
         [Route("loadProperties")]
         public HttpResponseMessage loadProperties(PostedDataEntity postedData)
         {
-            List<FilePropertyEntity> outputProperties = new List<FilePropertyEntity>();
+            try
+            {
+                List<FilePropertyEntity> outputProperties = new List<FilePropertyEntity>();
 
-            outputProperties.AddRange(GetFileProperties(postedData, FilePropertyCategory.BuildIn));
-            outputProperties.AddRange(GetFileProperties(postedData, FilePropertyCategory.Default));
+                outputProperties.AddRange(GetFileProperties(postedData, FilePropertyCategory.BuildIn));
+                outputProperties.AddRange(GetFileProperties(postedData, FilePropertyCategory.Default));
 
-            return Request.CreateResponse(HttpStatusCode.OK, outputProperties);
+                return Request.CreateResponse(HttpStatusCode.OK, outputProperties);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, Resources.GenerateException(ex));
+            }
         }
 
         private static IList<FilePropertyEntity> GetFileProperties(PostedDataEntity postedData, FilePropertyCategory filePropertyCategory) {
@@ -189,26 +196,33 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
         [Route("loadPropertiesNames")]
         public HttpResponseMessage loadPropertiesNames(PostedDataEntity postedData)
         {
-            var buildInProperties = GetFileProperties(postedData, FilePropertyCategory.BuildIn);
-
-            var filePropertiesNames = new List<FilePropertyName>();
-            
-            using (GroupDocs.Metadata.Metadata metadata = new GroupDocs.Metadata.Metadata(postedData.guid, GetLoadOptions(postedData)))
+            try
             {
-                foreach (var property in (metadata.GetRootPackage().FindProperties(p =>
-                    p.Value.ToClass<DocumentPackage>() != null)))
+                var buildInProperties = GetFileProperties(postedData, FilePropertyCategory.BuildIn);
+
+                var filePropertiesNames = new List<FilePropertyName>();
+
+                using (GroupDocs.Metadata.Metadata metadata = new GroupDocs.Metadata.Metadata(postedData.guid, GetLoadOptions(postedData)))
                 {
-                    foreach (var descriptor in property.Value.ToClass<DocumentPackage>().KnowPropertyDescriptors
-                        .Where(d => !buildInProperties.Select(op => op.name.ToLower()).Contains(d.Name.ToLower())
-                                 && d.Tags.Contains(Tags.Document.BuiltIn)
-                                 && (d.Type == MetadataPropertyType.String || d.Type == MetadataPropertyType.DateTime)))
+                    foreach (var property in (metadata.GetRootPackage().FindProperties(p =>
+                        p.Value.ToClass<DocumentPackage>() != null)))
                     {
-                        filePropertiesNames.Add(new FilePropertyName { name = descriptor.Name, type = descriptor.Type });
+                        foreach (var descriptor in property.Value.ToClass<DocumentPackage>().KnowPropertyDescriptors
+                            .Where(d => !buildInProperties.Select(op => op.name.ToLower()).Contains(d.Name.ToLower())
+                                     && d.Tags.Contains(Tags.Document.BuiltIn)
+                                     && (d.Type == MetadataPropertyType.String || d.Type == MetadataPropertyType.DateTime)))
+                        {
+                            filePropertiesNames.Add(new FilePropertyName { name = descriptor.Name, type = descriptor.Type });
+                        }
                     }
                 }
-            }
 
-            return Request.CreateResponse(HttpStatusCode.OK, filePropertiesNames.ToArray());
+                return Request.CreateResponse(HttpStatusCode.OK, filePropertiesNames.ToArray());
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, Resources.GenerateException(ex));
+            }
         }
 
         /// <summary>
@@ -220,29 +234,36 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
         [Route("saveProperty")]
         public HttpResponseMessage saveProperty(PostedDataEntity postedData)
         {
-            using (GroupDocs.Metadata.Metadata metadata = new GroupDocs.Metadata.Metadata(postedData.guid, GetLoadOptions(postedData)))
+            try
             {
-                if (metadata.FileFormat != FileFormat.Unknown && !metadata.GetDocumentInfo().IsEncrypted)
+                using (GroupDocs.Metadata.Metadata metadata = new GroupDocs.Metadata.Metadata(postedData.guid, GetLoadOptions(postedData)))
                 {
-                    foreach (var property in postedData.properties)
+                    if (metadata.FileFormat != FileFormat.Unknown && !metadata.GetDocumentInfo().IsEncrypted)
                     {
-                        metadata.SetProperties(p => string.Equals(p.Name, postedData.properties[0].name,
-                            StringComparison.OrdinalIgnoreCase), new PropertyValue(property.value));
+                        foreach (var property in postedData.properties)
+                        {
+                            metadata.SetProperties(p => string.Equals(p.Name, postedData.properties[0].name,
+                                StringComparison.OrdinalIgnoreCase), new PropertyValue(property.value));
+                        }
+
+                        metadata.Save(GetTempPath(postedData));
                     }
-
-                    metadata.Save(GetTempPath(postedData));
                 }
-            }
 
-            if (File.Exists(postedData.guid))
+                if (File.Exists(postedData.guid))
+                {
+                    File.Delete(postedData.guid);
+                }
+
+                File.Move(GetTempPath(postedData), postedData.guid);
+
+                // TODO: consider option to response with updated file
+                return Request.CreateResponse(HttpStatusCode.OK, new object());
+            }
+            catch (Exception ex)
             {
-                File.Delete(postedData.guid);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, Resources.GenerateException(ex));
             }
-
-            File.Move(GetTempPath(postedData), postedData.guid);
-
-            // TODO: consider option to response with updated file
-            return Request.CreateResponse(HttpStatusCode.OK, new object());
         }
 
         private static string GetTempPath(PostedDataEntity postedData)
@@ -271,25 +292,32 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
         [Route("removeProperty")]
         public HttpResponseMessage removeProperty(PostedDataEntity postedData)
         {
-            using (GroupDocs.Metadata.Metadata metadata = new GroupDocs.Metadata.Metadata(postedData.guid, GetLoadOptions(postedData)))
+            try
             {
-                if (metadata.FileFormat != FileFormat.Unknown && !metadata.GetDocumentInfo().IsEncrypted)
+                using (GroupDocs.Metadata.Metadata metadata = new GroupDocs.Metadata.Metadata(postedData.guid, GetLoadOptions(postedData)))
                 {
-                    metadata.RemoveProperties(p => string.Equals(p.Name, postedData.properties[0].name,
-                            StringComparison.OrdinalIgnoreCase));
+                    if (metadata.FileFormat != FileFormat.Unknown && !metadata.GetDocumentInfo().IsEncrypted)
+                    {
+                        metadata.RemoveProperties(p => string.Equals(p.Name, postedData.properties[0].name,
+                                StringComparison.OrdinalIgnoreCase));
 
-                    metadata.Save(GetTempPath(postedData));
+                        metadata.Save(GetTempPath(postedData));
+                    }
                 }
-            }
 
-            if (File.Exists(postedData.guid))
+                if (File.Exists(postedData.guid))
+                {
+                    File.Delete(postedData.guid);
+                }
+
+                File.Move(GetTempPath(postedData), postedData.guid);
+
+                return Request.CreateResponse(HttpStatusCode.OK, new object());
+            }
+            catch (Exception ex) 
             {
-                File.Delete(postedData.guid);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, Resources.GenerateException(ex));
             }
-
-            File.Move(GetTempPath(postedData), postedData.guid);
-
-            return Request.CreateResponse(HttpStatusCode.OK, new object());
         }
 
         /// <summary>
@@ -450,7 +478,7 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
             catch (Exception ex)
             {
                 // set exception message
-                return Request.CreateResponse(HttpStatusCode.OK, Resources.GenerateException(ex));
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, Resources.GenerateException(ex));
             }
         }
 
