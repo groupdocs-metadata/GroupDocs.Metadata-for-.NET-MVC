@@ -179,7 +179,10 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
                 case MetadataPropertyType.DateTime:
                     return property.Value.ToStruct(DateTime.MinValue);
                 case MetadataPropertyType.Integer:
-                    return property.Value.ToStruct(int.MinValue);
+                    if (property.Name.ToLower().Contains("fileformat")) {
+                        return ((FileFormat)property.Value.RawValue).ToString();
+                    }
+                    else  return property.Value.ToStruct(int.MinValue);
                 case MetadataPropertyType.StringArray:
                     return property.Value.ToClass<string[]>()[0];
                 default:
