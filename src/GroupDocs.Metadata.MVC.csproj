@@ -161,6 +161,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Products\Common\Util\Comparator\CaseInsensitiveComparer.cs" />
     <Compile Include="Products\Common\Util\Comparator\FileDateComparator.cs" />
     <Compile Include="Products\Common\Util\Comparator\FileNameComparator.cs" />
     <Compile Include="Products\Common\Util\Directory\DirectoryUtils.cs" />

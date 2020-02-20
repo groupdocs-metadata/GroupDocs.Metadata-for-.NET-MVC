@@ -168,7 +168,7 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
                 }
             }
 
-            return outputProperties;
+            return outputProperties.OrderBy(p => p.name, new CaseInsensitiveComparer()).ToList();
         }
 
         private static dynamic GetPropertyValue(MetadataProperty property) {
