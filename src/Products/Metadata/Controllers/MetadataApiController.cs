@@ -248,7 +248,7 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
                     {
                         foreach (var property in postedData.properties)
                         {
-                            metadata.SetProperties(p => string.Equals(p.Name, postedData.properties[0].name,
+                            metadata.SetProperties(p => string.Equals(p.Name, property.name,
                                 StringComparison.OrdinalIgnoreCase), new PropertyValue(property.value));
                         }
 
