@@ -1,3 +1,4 @@
+![Alt text](https://groupdocs-metadata.github.io/resources/image/banner.png "GroupDocs.Metadata")
 # GroupDocs.Metadata for .NET MVC Example
 
 [![Build status](https://ci.appveyor.com/api/projects/status/t40gr8bgr1msty7c/branch/master?svg=true)](https://ci.appveyor.com/project/bobkovalex/groupdocs-metadata-for-net-mvc/branch/master)
