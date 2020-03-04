@@ -83,6 +83,15 @@ Comming Soon
 ### Configuration
 For all methods above you can adjust settings in `configuration.yml`. By default in this sample will lookup for license file in `./Licenses` folder, so you can simply put your license file in that folder or specify relative/absolute path by setting `licensePath` value in `configuration.yml`.
 
+#### Metadata configuration options
+
+| Option                 | Type    |   Default value   | Description                                                                                                                                  |
+| ---------------------- | ------- |:-----------------:|:-------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`filesDirectory`**   | String  | `DocumentSamples` | Files directory path. Indicates where uploaded and predefined files are stored. It can be absolute or relative path                          |
+| **`defaultDocument`**  | String  |                   | Absolute path to default document that will be loaded automaticaly.                                                                          |
+| **`preloadPageCount`** | Integer |        `0`        | Indicate how many pages from a document should be loaded, remaining pages will be loaded on page scrolling.Set `0` to load all pages at once |
+| **`cache`**            | Boolean |      `true`       | Set true to enable cache                                                                                                                     |
+
 ## License
 The MIT License (MIT). 
 
