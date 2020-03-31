@@ -2,7 +2,7 @@
 using System.IO;
 using System.Reflection;
 
-namespace GroupDocs.Editor.MVC.AppDomainGenerator
+namespace GroupDocs.Metadata.MVC.AppDomainGenerator
 {
     /// <summary>
     /// DomainGenerator
@@ -61,21 +61,21 @@ namespace GroupDocs.Editor.MVC.AppDomainGenerator
         }       
 
         /// <summary>
-        /// Set GroupDocs.Editor license
+        /// Set GroupDocs.Metadata license
         /// </summary>
         /// <param name="type">Type</param>
-        public void SetEditorLicense()
+        public void SetMetadataLicense()
         {
             // Initiate license class
-            var obj = (GroupDocs.Editor.License)Activator.CreateInstance(CurrentType);
+            var obj = (GroupDocs.Metadata.License)Activator.CreateInstance(CurrentType);
             // Set license
             SetLicense(obj);
         }
 
         private void SetLicense(dynamic obj) {
-            if (!String.IsNullOrEmpty(globalConfiguration.GetApplicationConfiguration().GetLicensePath()))
+            if (!String.IsNullOrEmpty(globalConfiguration.Application.LicensePath))
             {
-                obj.SetLicense(globalConfiguration.GetApplicationConfiguration().GetLicensePath());
+                obj.SetLicense(globalConfiguration.Application.LicensePath);
             }
         }
     }

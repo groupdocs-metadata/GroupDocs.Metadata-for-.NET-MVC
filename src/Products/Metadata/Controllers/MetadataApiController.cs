@@ -35,13 +35,6 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
         {
             // Check if filesDirectory is relative or absolute path           
             globalConfiguration = new Common.Config.GlobalConfiguration();
-
-            // TODO: investigate the System.IO.IOException
-            License license = new License();
-            if (!string.IsNullOrEmpty(globalConfiguration.Application.LicensePath))
-            {
-                license.SetLicense(globalConfiguration.Application.LicensePath);
-            }
         }
 
         /// <summary>
