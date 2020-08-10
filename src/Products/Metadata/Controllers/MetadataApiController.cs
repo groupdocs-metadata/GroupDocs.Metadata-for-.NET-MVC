@@ -26,7 +26,7 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
     [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class MetadataApiController : ApiController
     {
-        private static List<string> SupportedImageFormats = new List<string>() { ".bmp", ".jpeg", ".jpg", ".tiff", ".tif", ".png", ".gif", ".emf", ".wmf", ".dwg", ".dicom", ".djvu" };
+        private static List<string> SupportedImageFormats = new List<string> { ".bmp", ".jpeg", ".jpg", ".tiff", ".tif", ".png", ".gif", ".emf", ".wmf", ".dwg", ".dicom", ".djvu" };
         private readonly Common.Config.GlobalConfiguration globalConfiguration;
 
         /// <summary>
@@ -136,7 +136,7 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Controllers
 
                 else if (filePropertyCategory == FilePropertyCategory.Default)
                 {
-                    IEnumerable<MetadataProperty> defaultProperties = new List<MetadataProperty>();
+                    IEnumerable<MetadataProperty> defaultProperties;
                     if (SupportedImageFormats.Contains(Path.GetExtension(filePath)))
                     {
                         // Fetch all metadata properties that fall into a particular category
