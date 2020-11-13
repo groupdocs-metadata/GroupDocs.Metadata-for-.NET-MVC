@@ -12,7 +12,6 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Config
     /// </summary>
     public class MetadataConfiguration : CommonConfiguration
     {
-        [JsonProperty]
         private string filesDirectory = "DocumentSamples/Metadata";
 
         [JsonProperty]
@@ -50,6 +49,8 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Config
             preloadPageCount = valuesGetter.GetIntegerPropertyValue("preloadPageCount", preloadPageCount);
             htmlMode = valuesGetter.GetBooleanPropertyValue("htmlMode", htmlMode);
             cache = valuesGetter.GetBooleanPropertyValue("cache", cache);
+            browse = valuesGetter.GetBooleanPropertyValue("browse", browse);
+            upload = valuesGetter.GetBooleanPropertyValue("upload", upload);
         }
 
         public void SetFilesDirectory(string filesDirectory)
@@ -100,6 +101,25 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Config
         public bool GetCache()
         {
             return cache;
+        }
+
+        public string GetAbsolutePath(string filePath)
+        {
+            if (!Path.IsPathRooted(filePath))
+            {
+                return Path.Combine(GetFilesDirectory(), filePath);
+            }
+            string absolutePath = Path.GetFullPath(filePath);
+            string fileDirectory = Path.GetFullPath(GetFilesDirectory());
+            if (!fileDirectory.EndsWith(Path.DirectorySeparatorChar.ToString()))
+            {
+                fileDirectory += Path.DirectorySeparatorChar;
+            }
+            if (!absolutePath.StartsWith(fileDirectory))
+            {
+                throw new ArgumentException("Invalid file path");
+            }
+            return absolutePath;
         }
     }
 }

@@ -45,8 +45,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="GroupDocs.Metadata, Version=20.7.0.0, Culture=neutral, PublicKeyToken=716fcc553a201e56, processorArchitecture=MSIL">
-      <HintPath>..\packages\GroupDocs.Metadata.20.7.0\lib\net20\GroupDocs.Metadata.dll</HintPath>
+    <Reference Include="GroupDocs.Metadata, Version=20.9.0.0, Culture=neutral, PublicKeyToken=716fcc553a201e56, processorArchitecture=MSIL">
+      <HintPath>..\packages\GroupDocs.Metadata.20.9.0\lib\net20\GroupDocs.Metadata.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
@@ -168,9 +168,46 @@
     <Compile Include="Products\Common\Util\Directory\DirectoryUtils.cs" />
     <Compile Include="Products\Common\Util\Parser\YamlParser.cs" />
     <Compile Include="Products\Metadata\Config\MetadataConfiguration.cs" />
+    <Compile Include="Products\Metadata\Context\MetadataContext.cs" />
+    <Compile Include="Products\Metadata\Context\MetadataPathConfig.cs" />
+    <Compile Include="Products\Metadata\Context\NestedPackageInfo.cs" />
     <Compile Include="Products\Metadata\Controllers\MetadataApiController.cs" />
     <Compile Include="Products\Common\Entity\Web\PostedDataEntity.cs" />
+    <Compile Include="Products\Metadata\DTO\ExtractedPackageDto.cs" />
+    <Compile Include="Products\Metadata\DTO\KnownPropertyDto.cs" />
+    <Compile Include="Products\Metadata\DTO\MetadataPropertyDto.cs" />
+    <Compile Include="Products\Metadata\DTO\PostedDataDto.cs" />
+    <Compile Include="Products\Metadata\DTO\PostedMetadataPackageDto.cs" />
     <Compile Include="Products\Metadata\Entity\FilePropertyName.cs" />
+    <Compile Include="Products\Metadata\Model\AccessLevels.cs" />
+    <Compile Include="Products\Metadata\Model\IPTC\IptcProperty.cs" />
+    <Compile Include="Products\Metadata\Model\IPTC\IptcPropertyDescriptor.cs" />
+    <Compile Include="Products\Metadata\Model\Package.cs" />
+    <Compile Include="Products\Metadata\Model\PackageType.cs" />
+    <Compile Include="Products\Metadata\Model\Property.cs" />
+    <Compile Include="Products\Metadata\Model\PropertyDescriptor.cs" />
+    <Compile Include="Products\Metadata\Model\PropertyType.cs" />
+    <Compile Include="Products\Metadata\Repositories\Asf\AsfCodecRepository.cs" />
+    <Compile Include="Products\Metadata\Repositories\Asf\AsfRepository.cs" />
+    <Compile Include="Products\Metadata\Repositories\Asf\AsfStreamRepository.cs" />
+    <Compile Include="Products\Metadata\Repositories\DigitalSignatureRepository.cs" />
+    <Compile Include="Products\Metadata\Repositories\EnumMapperRepository.cs" />
+    <Compile Include="Products\Metadata\Repositories\ExifMetadataRepository.cs" />
+    <Compile Include="Products\Metadata\Repositories\FileTypeRepository.cs" />
+    <Compile Include="Products\Metadata\Repositories\Fonts\OpenTypeRepository.cs" />
+    <Compile Include="Products\Metadata\Repositories\ID3V2TagRepository.cs" />
+    <Compile Include="Products\Metadata\Repositories\IptcMetadataRepository.cs" />
+    <Compile Include="Products\Metadata\Repositories\Matroska\MatroskaTagRepository.cs" />
+    <Compile Include="Products\Metadata\Repositories\Matroska\MatroskaTrackRepository.cs" />
+    <Compile Include="Products\Metadata\Repositories\MetadataPackageRepository.cs" />
+    <Compile Include="Products\Metadata\Repositories\MetadataRepositoryFactory.cs" />
+    <Compile Include="Products\Metadata\Repositories\OneLevelMetadataRepository.cs" />
+    <Compile Include="Products\Metadata\Repositories\VCardRepository.cs" />
+    <Compile Include="Products\Metadata\Repositories\XmpMetadataRepository.cs" />
+    <Compile Include="Products\Metadata\Services\FileService.cs" />
+    <Compile Include="Products\Metadata\Services\MetadataService.cs" />
+    <Compile Include="Products\Metadata\Util\ArrayUtil.cs" />
+    <Compile Include="Products\Metadata\Util\DirectoryUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
