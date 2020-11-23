@@ -3,7 +3,6 @@ using GroupDocs.Metadata.MVC.Products.Metadata.Model;
 using System;
 using System.Collections.Generic;
 
-
 namespace GroupDocs.Metadata.MVC.Products.Metadata.Repositories
 {
     public abstract class MetadataPackageRepository

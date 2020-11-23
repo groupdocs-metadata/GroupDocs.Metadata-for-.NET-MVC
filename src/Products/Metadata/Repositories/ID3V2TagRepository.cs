@@ -15,7 +15,6 @@ namespace GroupDocs.Metadata.MVC.Products.Metadata.Repositories
         private const string TextFrameStart = "T";
         private const string UrlLinkFrameStart = "W";
 
-
         public ID3V2TagRepository(MetadataPackage branchPackage) : base(branchPackage)
         {
         }
