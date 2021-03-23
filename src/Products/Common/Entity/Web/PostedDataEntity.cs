@@ -15,6 +15,5 @@ namespace GroupDocs.Metadata.MVC.Products.Common.Entity.Web
         public int angle { get; set; }
         public List<int> pages { get; set; }        
         public bool rewrite { get; set; }
-        public List<FilePropertyEntity> properties { get; set; }
     }
 }

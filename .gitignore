@@ -31,3 +31,5 @@ src/DocumentSamples
 
 # Finder in OSX
 .DS_Store
+src/Deploy/
+src/Properties/PublishProfiles/
