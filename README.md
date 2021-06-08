@@ -93,6 +93,15 @@ For all methods above you can adjust settings in `configuration.yml`. By default
 | **`preloadPageCount`** | Integer |        `0`        | Indicate how many pages from a document should be loaded, remaining pages will be loaded on page scrolling.Set `0` to load all pages at once |
 | **`cache`**            | Boolean |      `true`       | Set true to enable cache                                                                                                                     |
 
+## Troubleshooting
+### How to set custom baseURL
+BaseURL is fetched from address bar however you can set custom baseURL by adding *forRoot* parameter at [app.module.ts](https://github.com/groupdocs-metadata/GroupDocs.Metadata-for-.NET-MVC/blob/master/src/client/apps/metadata/src/app/app.module.ts#L10)
+
+**Example:**
+```js
+ViewerModule.forRoot("http://localhost:8080")
+```
+
 ## License
 The MIT License (MIT). 
 
