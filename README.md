@@ -122,3 +122,4 @@ Please have a look at the LICENSE.md for more details
 - **Free Support Forum:** [GroupDocs.Metadata for .NET Free Support Forum](https://forum.groupdocs.com/c/metadata)
 - **Paid Support Helpdesk:** [GroupDocs.Metadata for .NET Paid Support Helpdesk](https://helpdesk.groupdocs.com)
 - **Blog:** [GroupDocs.Metadata for .NET Blog](https://blog.groupdocs.com/category/groupdocs-metadata-product-family/)
+- **Search:** [GroupDocs.Metadata for .NET Search](https://search.groupdocs.com/)
